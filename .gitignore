@@ -3,3 +3,4 @@
 .metadata
 .idea
 .iml
+*.class
