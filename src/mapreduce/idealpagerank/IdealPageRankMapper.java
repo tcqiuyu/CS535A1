@@ -8,15 +8,15 @@ import java.io.IOException;
 /**
  * Created by Qiu Yu on 10/1/2015.<br>
  * Input Key: LongWritable ---> Text offset<br>
- * Input Value: Text ---> "Article_K \t Page_rank_K \t Article_I1_K,Article_I2_K,...,Article_In_K"<br>
+ * Input Value: Text ---> "Article_K \t Page_rank_K \t Article_K_I1,Article_K_I2,...,Article_K_In"<br>
  * Output Key: Text <br>
  * ---> 1: "Article_K"<br>
- * ---> 2: "Article_I_K"<br>
+ * ---> 2: "Article_K_I"<br>
  * ---> 3: "Article_K"<br>
  * Output Value: Text <br>
  * ---> 1: "!" ( for detecting and ignoring pages that have been deleted or does not exists, see "Wiki:Red Link" )<br>
  * ---> 2: "Article_K \t Page_rank_K \t Total_Articles_Count_In_Article_K" ( for page rank calculation )<br>
- * ---> 3: "|Article_I1_K,Article_I2_K,...,Article_In_K" ( saved for iterative use )<br>
+ * ---> 3: "|Article_K_I1,Article_K_I2,...,Article_K_In" ( saved for iterative use )<br>
  */
 public class IdealPageRankMapper extends Mapper<Text, Text, Text, Text> {
 

@@ -8,9 +8,9 @@ import java.io.IOException;
 /**
  * Created by Qiu Yu on 9/29/2015.<br>
  * Input Key: Text ---> Article_K<br>
- * Input Value: Iterable<Text> ---> Article_I_K ( Article I from Article K )<br>
+ * Input Value: Iterable<Text> ---> Article_K_I ( Article I from Article K )<br>
  * Output Key: Text ---> Article_K<br>
- * Output Value: Text ---> "\t 1.0 \t Article_I1_K,Article_I2_K,...,Article_In_K"<br>
+ * Output Value: Text ---> "\t 1.0 \t Article_K_I1,Article_K_I2,...,Article_K_In"<br>
  */
 
 public class PageParserReducer extends Reducer<Text, Text, Text, Text> {

@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
  * Input Key: LongWritable ---> Text Offset<br>
  * Input Value: Text ---> Content of each article<br>
  * Output Key: Text ---> Article_K<br>
- * Output Value: Text ---> Article_I_K ( Article I from Article K )<br>
+ * Output Value: Text ---> Article_K_I ( Article I from Article K )<br>
  */
 public class PageParserMapper extends Mapper<LongWritable, Text, Text, Text> {
 
