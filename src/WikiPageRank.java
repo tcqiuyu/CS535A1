@@ -7,8 +7,8 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
-import pageparser.PageParserMapper;
-import pageparser.PageParserReducer;
+import mapreduce.pageparser.PageParserMapper;
+import mapreduce.pageparser.PageParserReducer;
 
 import java.io.IOException;
 
