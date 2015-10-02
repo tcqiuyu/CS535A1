@@ -15,13 +15,22 @@ import java.io.IOException;
 
 public class PageParserReducer extends Reducer<Text, Text, Text, Text> {
 
+    private int n = 0;
+
     @Override
     public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-        String pagerank = "1.0\t";
+        if (key.toString().equals("!")) {
+            for (Text val : values) {
+                n += Integer.valueOf(val.toString());
+            }
+        }
+
+
+        String pagerank = String.valueOf(1 / n) + "\t";
 
         boolean first = true;
         for (Text link : values) {
-            if(!first) pagerank += ",";
+            if (!first) pagerank += ",";
 
             pagerank += link.toString();
             first = false;

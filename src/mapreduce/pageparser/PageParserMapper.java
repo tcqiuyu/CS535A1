@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 public class PageParserMapper extends Mapper<LongWritable, Text, Text, Text> {
 
     private static final Pattern linkPattern = Pattern.compile("\\[\\[.+?\\]\\]");
+    private int n = 0;
 
     /**
      * @param key
@@ -41,7 +42,13 @@ public class PageParserMapper extends Mapper<LongWritable, Text, Text, Text> {
         for (String link : links) {
             context.write(titleText, new Text(link));
         }
+        n++;
 
+    }
+
+    @Override
+    public void cleanup(Context context) throws IOException, InterruptedException {
+        context.write(new Text("!"), new Text(String.valueOf(n)));
     }
 
     private Set<String> extractLinkFromContent(String content) throws IOException {
