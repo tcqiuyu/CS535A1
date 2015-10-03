@@ -27,8 +27,12 @@ public class TaxPageRankReducer extends Reducer<Text, Text, Text, Text> {
     public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
         if (key.toString().equals("!")) {
             for (Text val : values) {
-                n += Integer.valueOf(val.toString());
+                try {
+                    n += Integer.valueOf(val.toString());
+                } catch (NumberFormatException ignored) {
+                }
             }
+            return;
         }
 
 
@@ -52,8 +56,14 @@ public class TaxPageRankReducer extends Reducer<Text, Text, Text, Text> {
 
             // case 2
             String[] split = inputKey.split("\\t");
-            float pagerank_K = Float.valueOf(split[1]);
-            int article_count = Integer.valueOf(split[2]);
+            Double pagerank_K;
+            Integer article_count;
+            try {
+                pagerank_K = Double.valueOf(split[1]);
+                article_count = Integer.valueOf(split[2]);
+            } catch (ArrayIndexOutOfBoundsException e) {
+                continue;
+            }
 
             pagerank += (pagerank_K / article_count);
         }

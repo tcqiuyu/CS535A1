@@ -10,6 +10,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
@@ -30,23 +31,23 @@ public class WikiPageRank {
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
         WikiPageRank wikiPageRank = new WikiPageRank();
         Path firstOutputPath = new Path(OUTPUT + "pagerank/parsedOutput");
-        wikiPageRank.runPageParsingJob(INPUT, firstOutputPath);
-
+//        wikiPageRank.runPageParsingJob(INPUT, firstOutputPath);
+//
         String idealOutput = OUTPUT + "pagerank/ideal_iter";
         wikiPageRank.runIdealPageRankJob(firstOutputPath, new Path(idealOutput + 1));
-        for (int iter = 1; iter < MAX_ITER; iter++) {
-            String inputPath = idealOutput + (iter);
-            String outputPath = idealOutput + (iter + 1);
-            wikiPageRank.runIdealPageRankJob(new Path(inputPath), new Path(outputPath));
-        }
-
+//        for (int iter = 1; iter < MAX_ITER; iter++) {
+//            String inputPath = idealOutput + (iter);
+//            String outputPath = idealOutput + (iter + 1);
+//            wikiPageRank.runIdealPageRankJob(new Path(inputPath), new Path(outputPath));
+//        }
+//
         String taxOutput = OUTPUT + "pagerank/tax_iter";
-        wikiPageRank.runTaxPageRankJob(firstOutputPath, new Path(idealOutput + 1));
-        for (int iter = 1; iter < MAX_ITER; iter++) {
-            String inputPath = taxOutput + (iter);
-            String outputPath = taxOutput + (iter + 1);
-            wikiPageRank.runIdealPageRankJob(new Path(inputPath), new Path(outputPath));
-        }
+        wikiPageRank.runTaxPageRankJob(firstOutputPath, new Path(taxOutput + 1));
+//        for (int iter = 1; iter < MAX_ITER; iter++) {
+//            String inputPath = taxOutput + (iter);
+//            String outputPath = taxOutput + (iter + 1);
+//            wikiPageRank.runTaxPageRankJob(new Path(inputPath), new Path(outputPath));
+//        }
 
         String idealSortedOutput = OUTPUT + "pagerank/ideal_sorted_output/";
         String taxSortedOutput = OUTPUT + "pagerank/tax_sorted_output/";
@@ -161,6 +162,7 @@ public class WikiPageRank {
         //set mapper/combiner/reducer
         sortingJob.setMapperClass(SortingMapper.class);
 
+        sortingJob.setSortComparatorClass(DoubleDescendingWritable.DecreasingComparator.class);
         //set input path
         FileInputFormat.setInputPaths(sortingJob, inputPath);
         FileInputFormat.setInputDirRecursive(sortingJob, true);
@@ -176,10 +178,23 @@ public class WikiPageRank {
         FileOutputFormat.setOutputPath(sortingJob, outputPath);
 
         sortingJob.setOutputFormatClass(TextOutputFormat.class);
-        sortingJob.setOutputKeyClass(Text.class);
-        sortingJob.setOutputValueClass(DoubleWritable.class);
+        sortingJob.setOutputKeyClass(DoubleWritable.class);
+        sortingJob.setOutputValueClass(Text.class);
 
         sortingJob.waitForCompletion(true);
     }
 
+    private static class DoubleDescendingWritable extends DoubleWritable{
+        private static class DecreasingComparator extends Comparator{
+            @Override
+            public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
+                return -super.compare(b1, s1, l1, b2, s2, l2);
+            }
+
+            @Override
+            public int compare(WritableComparable a, WritableComparable b) {
+                return -super.compare(a, b);
+            }
+        }
+    }
 }

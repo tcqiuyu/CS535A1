@@ -24,28 +24,39 @@ public class IdealPageRankReducer extends Reducer<Text, Text, Text, Text> {
     @Override
     public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
 
+        if (key.toString().equals("!")) {
+            return;
+        }
+
         boolean isRedLink = true;
         float pagerank = 0;
         String outgoingArticles = "";
-        String inputKey;
+        String inputVal;
         for (Text val : values) {
-            inputKey = val.toString();
+            inputVal = val.toString();
 
             // case 1
-            if (inputKey.equals("!")) {
+            if (inputVal.equals("!")) {
                 isRedLink = false;
                 continue;
             }
 
             // case 3
-            if (inputKey.substring(1).equals("|")) {
-                outgoingArticles = "\t" + inputKey.substring(1);
+            if (inputVal.substring(1).equals("|")) {
+                outgoingArticles = "\t" + inputVal.substring(1);
+                continue;
             }
 
             // case 2
-            String[] split = inputKey.split("\\t");
-            float pagerank_K = Float.valueOf(split[1]);
-            int article_count = Integer.valueOf(split[2]);
+            String[] split = inputVal.split("\\t");
+            Double pagerank_K;
+            Integer article_count;
+            try {
+                pagerank_K = Double.valueOf(split[1]);
+                article_count = Integer.valueOf(split[2]);
+            } catch (ArrayIndexOutOfBoundsException e) {
+                continue;
+            }
 
             pagerank += (pagerank_K / article_count);
         }

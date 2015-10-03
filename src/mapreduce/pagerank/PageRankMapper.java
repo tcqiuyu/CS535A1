@@ -1,5 +1,6 @@
 package mapreduce.pagerank;
 
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
@@ -18,17 +19,17 @@ import java.io.IOException;
  * ---> 2: "Article_K \t Page_rank_K \t Total_Articles_Count_In_Article_K" ( for page rank calculation )<br>
  * ---> 3: "|Article_K_I1,Article_K_I2,...,Article_K_In" ( saved for iterative use )<br>
  */
-public class PageRankMapper extends Mapper<Text, Text, Text, Text> {
-    private int n = 0;
+public class PageRankMapper extends Mapper<LongWritable, Text, Text, Text> {
+    int n;
 
     @Override
-    public void map(Text key, Text value, Context context) throws IOException, InterruptedException {
-
+    public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+        int p = 0;
         int firstTabIdx = value.find("\t");
         int secondTabIdx = value.find("\t", firstTabIdx + 1);
 
         String articleK = Text.decode(value.getBytes(), 0, firstTabIdx);
-        String articleKWithPageRank = Text.decode(value.getBytes(), 0, secondTabIdx);
+        String articleKWithPageRank = Text.decode(value.getBytes(), 0, secondTabIdx + 1);
 
         // case 1
         context.write(new Text(articleK), new Text("!"));
@@ -36,7 +37,8 @@ public class PageRankMapper extends Mapper<Text, Text, Text, Text> {
         // ignore articles with no outgoing links
         if (secondTabIdx == -1) return;
 
-        String outgoingArticles = Text.decode(value.getBytes(), secondTabIdx + 1, value.getLength() - secondTabIdx - 1); //Article_K_I1,Article_K_I2,...,Article_K_In
+        //Article_K_I1,Article_K_I2,...,Article_K_In
+        String outgoingArticles = Text.decode(value.getBytes(), secondTabIdx + 1, value.getLength() - secondTabIdx - 1);
 
         String[] articles = outgoingArticles.split(",");
         for (String outgoingArticle : articles) {
@@ -48,7 +50,8 @@ public class PageRankMapper extends Mapper<Text, Text, Text, Text> {
         // case 3
         context.write(new Text(articleK), new Text("|" + outgoingArticles));
 
-        n++;
+        p++;
+        n = p;
     }
 
     @Override

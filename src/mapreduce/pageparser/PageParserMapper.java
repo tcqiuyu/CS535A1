@@ -33,6 +33,9 @@ public class PageParserMapper extends Mapper<LongWritable, Text, Text, Text> {
     @Override
     public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
         String title = getTitle(value);
+        if (title.contains("&amp;")) {
+            title = title.replace("&amp;", "&");
+        }
         String content = getContent(value);
 
         Set<String> links = extractLinkFromContent(content);
@@ -43,7 +46,6 @@ public class PageParserMapper extends Mapper<LongWritable, Text, Text, Text> {
             context.write(titleText, new Text(link));
         }
         n++;
-
     }
 
     @Override
@@ -99,11 +101,6 @@ public class PageParserMapper extends Mapper<LongWritable, Text, Text, Text> {
         if (link.contains(":")) return false;
         if (link.contains(",")) return false;
         return true;
-    }
-
-    private String linkValidation(String link) {
-
-        return link;
     }
 
     private String getTitle(Text val) throws CharacterCodingException {

@@ -21,10 +21,12 @@ public class PageParserReducer extends Reducer<Text, Text, Text, Text> {
     public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
         if (key.toString().equals("!")) {
             for (Text val : values) {
-                n += Integer.valueOf(val.toString());
+                try {
+                    n += Integer.valueOf(val.toString());
+                } catch (NumberFormatException ignored) {
+                }
             }
         }
-
 
         String pagerank = String.valueOf(1 / n) + "\t";
 

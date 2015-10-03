@@ -23,8 +23,15 @@ public class SortingMapper extends Mapper<LongWritable, Text, DoubleWritable, Te
 
         String val = value.toString();
         String[] split = val.split("\\t");
-        String article_K = split[0];
-        Double pagerank = Double.valueOf(split[1]);
+        String article_K;
+        Double pagerank;
+
+        try {
+            article_K = split[0];
+            pagerank = Double.valueOf(split[1]);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return;
+        }
 
         context.write(new DoubleWritable(pagerank), new Text(article_K));
     }
