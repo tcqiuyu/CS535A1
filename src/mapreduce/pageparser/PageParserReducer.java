@@ -15,7 +15,7 @@ import java.io.IOException;
 
 public class PageParserReducer extends Reducer<Text, Text, Text, Text> {
 
-    private int n = 0;
+    private float n = 0F;
 
     @Override
     public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
@@ -24,11 +24,12 @@ public class PageParserReducer extends Reducer<Text, Text, Text, Text> {
                 try {
                     n += Integer.valueOf(val.toString());
                 } catch (NumberFormatException ignored) {
+                    return;
                 }
             }
         }
 
-        String pagerank = String.valueOf(1 / n) + "\t";
+        String pagerank = 1 / n + "\t";
 
         boolean first = true;
         for (Text link : values) {

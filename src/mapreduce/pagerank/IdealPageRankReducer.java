@@ -42,17 +42,17 @@ public class IdealPageRankReducer extends Reducer<Text, Text, Text, Text> {
             }
 
             // case 3
-            if (inputVal.substring(1).equals("|")) {
+            if (inputVal.startsWith("|")) {
                 outgoingArticles = "\t" + inputVal.substring(1);
                 continue;
             }
 
             // case 2
             String[] split = inputVal.split("\\t");
-            Double pagerank_K;
+            Float pagerank_K;
             Integer article_count;
             try {
-                pagerank_K = Double.valueOf(split[1]);
+                pagerank_K = Float.valueOf(split[1]);
                 article_count = Integer.valueOf(split[2]);
             } catch (ArrayIndexOutOfBoundsException e) {
                 continue;

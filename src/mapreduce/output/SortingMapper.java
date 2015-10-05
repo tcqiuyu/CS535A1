@@ -1,6 +1,5 @@
 package mapreduce.output;
 
-import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -16,7 +15,7 @@ import java.io.IOException;
  * Output Key: DoubleWritable ---> Page_rank_K<br>
  * Output Value: Text ---> Article_K<br>
  */
-public class SortingMapper extends Mapper<LongWritable, Text, DoubleWritable, Text>{
+public class SortingMapper extends Mapper<LongWritable, Text, FloatWritable, Text> {
 
     @Override
     public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
@@ -24,15 +23,16 @@ public class SortingMapper extends Mapper<LongWritable, Text, DoubleWritable, Te
         String val = value.toString();
         String[] split = val.split("\\t");
         String article_K;
-        Double pagerank;
+        Float pagerank;
 
         try {
             article_K = split[0];
-            pagerank = Double.valueOf(split[1]);
+            pagerank = Float.valueOf(split[1]);
         } catch (ArrayIndexOutOfBoundsException e) {
             return;
         }
 
-        context.write(new DoubleWritable(pagerank), new Text(article_K));
+        context.write(new FloatWritable(pagerank), new Text(article_K));
     }
+
 }

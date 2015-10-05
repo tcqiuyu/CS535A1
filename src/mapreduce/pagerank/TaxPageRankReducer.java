@@ -20,7 +20,7 @@ import java.io.IOException;
  * Output Value: Text ---> Page_rank_K \t Article_I1_K,Article_I2_K,...,Article_In_K
  */
 public class TaxPageRankReducer extends Reducer<Text, Text, Text, Text> {
-    public static final double beta = 0.85;
+    public static final Float beta = 0.85F;
     private int n = 0;
 
     @Override
@@ -50,16 +50,16 @@ public class TaxPageRankReducer extends Reducer<Text, Text, Text, Text> {
             }
 
             // case 3
-            if (inputKey.substring(1).equals("|")) {
+            if (inputKey.startsWith("|")) {
                 outgoingArticles = "\t" + inputKey.substring(1);
             }
 
             // case 2
             String[] split = inputKey.split("\\t");
-            Double pagerank_K;
+            Float pagerank_K;
             Integer article_count;
             try {
-                pagerank_K = Double.valueOf(split[1]);
+                pagerank_K = Float.valueOf(split[1]);
                 article_count = Integer.valueOf(split[2]);
             } catch (ArrayIndexOutOfBoundsException e) {
                 continue;
@@ -69,7 +69,7 @@ public class TaxPageRankReducer extends Reducer<Text, Text, Text, Text> {
         }
 
         if (isRedLink) return;
-        double finalPagerank = beta * pagerank + (1 - beta) / n;
+        Float finalPagerank = beta * pagerank + (1 - beta) / n;
 
         context.write(key, new Text(finalPagerank + outgoingArticles));
     }

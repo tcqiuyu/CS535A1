@@ -20,11 +20,10 @@ import java.io.IOException;
  * ---> 3: "|Article_K_I1,Article_K_I2,...,Article_K_In" ( saved for iterative use )<br>
  */
 public class PageRankMapper extends Mapper<LongWritable, Text, Text, Text> {
-    int n;
+    int n = 0;
 
     @Override
     public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
-        int p = 0;
         int firstTabIdx = value.find("\t");
         int secondTabIdx = value.find("\t", firstTabIdx + 1);
 
@@ -42,7 +41,7 @@ public class PageRankMapper extends Mapper<LongWritable, Text, Text, Text> {
 
         String[] articles = outgoingArticles.split(",");
         for (String outgoingArticle : articles) {
-            String outputVal = articleKWithPageRank + "\t" + articles.length;
+            String outputVal = articleKWithPageRank + articles.length;
             // case 2
             context.write(new Text(outgoingArticle), new Text(outputVal));
         }
@@ -50,8 +49,7 @@ public class PageRankMapper extends Mapper<LongWritable, Text, Text, Text> {
         // case 3
         context.write(new Text(articleK), new Text("|" + outgoingArticles));
 
-        p++;
-        n = p;
+        n++;
     }
 
     @Override

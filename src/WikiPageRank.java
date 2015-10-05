@@ -1,5 +1,7 @@
 import input.DumpInputFormat;
+import mapreduce.output.FloatDescendingWritable;
 import mapreduce.output.SortingMapper;
+import mapreduce.output.SortingReducer;
 import mapreduce.pageparser.PageParserMapper;
 import mapreduce.pageparser.PageParserReducer;
 import mapreduce.pagerank.IdealPageRankReducer;
@@ -8,9 +10,8 @@ import mapreduce.pagerank.TaxPageRankReducer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.DoubleWritable;
+import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
@@ -34,26 +35,24 @@ public class WikiPageRank {
 //        wikiPageRank.runPageParsingJob(INPUT, firstOutputPath);
 //
         String idealOutput = OUTPUT + "pagerank/ideal_iter";
-        wikiPageRank.runIdealPageRankJob(firstOutputPath, new Path(idealOutput + 1));
+//        wikiPageRank.runIdealPageRankJob(firstOutputPath, new Path(idealOutput + 1));
 //        for (int iter = 1; iter < MAX_ITER; iter++) {
 //            String inputPath = idealOutput + (iter);
 //            String outputPath = idealOutput + (iter + 1);
 //            wikiPageRank.runIdealPageRankJob(new Path(inputPath), new Path(outputPath));
 //        }
-//
+        String idealSortedOutput = OUTPUT + "pagerank/ideal_sorted_output2/";
+        wikiPageRank.runSortingJob(new Path(idealOutput + MAX_ITER), new Path(idealSortedOutput));
+
         String taxOutput = OUTPUT + "pagerank/tax_iter";
-        wikiPageRank.runTaxPageRankJob(firstOutputPath, new Path(taxOutput + 1));
+//        wikiPageRank.runTaxPageRankJob(firstOutputPath, new Path(taxOutput + 1));
 //        for (int iter = 1; iter < MAX_ITER; iter++) {
 //            String inputPath = taxOutput + (iter);
 //            String outputPath = taxOutput + (iter + 1);
 //            wikiPageRank.runTaxPageRankJob(new Path(inputPath), new Path(outputPath));
 //        }
-
-        String idealSortedOutput = OUTPUT + "pagerank/ideal_sorted_output/";
-        String taxSortedOutput = OUTPUT + "pagerank/tax_sorted_output/";
-        wikiPageRank.runSortingJob(new Path(idealOutput + MAX_ITER), new Path(idealSortedOutput));
+        String taxSortedOutput = OUTPUT + "pagerank/tax_sorted_output2/";
         wikiPageRank.runSortingJob(new Path(taxOutput + MAX_ITER), new Path(taxSortedOutput));
-
     }
 
     public void runPageParsingJob(Path inputPath, Path outputPath) throws IOException, ClassNotFoundException, InterruptedException {
@@ -161,8 +160,8 @@ public class WikiPageRank {
 
         //set mapper/combiner/reducer
         sortingJob.setMapperClass(SortingMapper.class);
+//        sortingJob.setReducerClass(SortingReducer.class);
 
-        sortingJob.setSortComparatorClass(DoubleDescendingWritable.DecreasingComparator.class);
         //set input path
         FileInputFormat.setInputPaths(sortingJob, inputPath);
         FileInputFormat.setInputDirRecursive(sortingJob, true);
@@ -177,24 +176,14 @@ public class WikiPageRank {
 
         FileOutputFormat.setOutputPath(sortingJob, outputPath);
 
-        sortingJob.setOutputFormatClass(TextOutputFormat.class);
-        sortingJob.setOutputKeyClass(DoubleWritable.class);
-        sortingJob.setOutputValueClass(Text.class);
+//        sortingJob.setMapOutputKeyClass(FloatDescendingWritable.class);
+//        sortingJob.setMapOutputValueClass(Text.class);
 
+        sortingJob.setOutputFormatClass(TextOutputFormat.class);
+        sortingJob.setOutputKeyClass(FloatWritable.class);
+        sortingJob.setOutputValueClass(Text.class);
+        sortingJob.setSortComparatorClass(FloatDescendingWritable.DecreasingComparator.class);
         sortingJob.waitForCompletion(true);
     }
 
-    private static class DoubleDescendingWritable extends DoubleWritable{
-        private static class DecreasingComparator extends Comparator{
-            @Override
-            public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
-                return -super.compare(b1, s1, l1, b2, s2, l2);
-            }
-
-            @Override
-            public int compare(WritableComparable a, WritableComparable b) {
-                return -super.compare(a, b);
-            }
-        }
-    }
 }

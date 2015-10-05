@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 public class PageParserMapper extends Mapper<LongWritable, Text, Text, Text> {
 
     private static final Pattern linkPattern = Pattern.compile("\\[\\[.+?\\]\\]");
-    private int n = 0;
+    private int n;
 
     /**
      * @param key
@@ -60,6 +60,9 @@ public class PageParserMapper extends Mapper<LongWritable, Text, Text, Text> {
         // find link in content
         while (matcher.find()) {
             String link = matcher.group();
+            if (!isValidLink(link)) {
+                continue;
+            }
             int endPos = link.indexOf("]");
 
             int barPos = link.indexOf("|");
@@ -75,9 +78,6 @@ public class PageParserMapper extends Mapper<LongWritable, Text, Text, Text> {
 
             link = link.substring(2, endPos);
 
-            if (!isValidLink(link)) {
-                continue;
-            }
 
             if (link.contains("&amp;")) {
                 link = link.replace("&amp;", "&");
@@ -85,6 +85,11 @@ public class PageParserMapper extends Mapper<LongWritable, Text, Text, Text> {
 
             link = link.replaceAll("\\s", "_");
             link = link.replaceAll(",", "");
+
+            if (link.isEmpty()) {
+                continue;
+            }
+
             links.add(link);
         }
         return links;
