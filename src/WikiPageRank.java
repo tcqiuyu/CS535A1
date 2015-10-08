@@ -1,7 +1,6 @@
 import input.DumpInputFormat;
 import mapreduce.output.FloatDescendingWritable;
 import mapreduce.output.SortingMapper;
-import mapreduce.output.SortingReducer;
 import mapreduce.pageparser.PageParserMapper;
 import mapreduce.pageparser.PageParserReducer;
 import mapreduce.pagerank.IdealPageRankReducer;
@@ -32,26 +31,26 @@ public class WikiPageRank {
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
         WikiPageRank wikiPageRank = new WikiPageRank();
         Path firstOutputPath = new Path(OUTPUT + "pagerank/parsedOutput");
-//        wikiPageRank.runPageParsingJob(INPUT, firstOutputPath);
+        wikiPageRank.runPageParsingJob(INPUT, firstOutputPath);
 //
         String idealOutput = OUTPUT + "pagerank/ideal_iter";
-//        wikiPageRank.runIdealPageRankJob(firstOutputPath, new Path(idealOutput + 1));
-//        for (int iter = 1; iter < MAX_ITER; iter++) {
-//            String inputPath = idealOutput + (iter);
-//            String outputPath = idealOutput + (iter + 1);
-//            wikiPageRank.runIdealPageRankJob(new Path(inputPath), new Path(outputPath));
-//        }
-        String idealSortedOutput = OUTPUT + "pagerank/ideal_sorted_output2/";
+        wikiPageRank.runIdealPageRankJob(firstOutputPath, new Path(idealOutput + 1));
+        for (int iter = 1; iter < MAX_ITER; iter++) {
+            String inputPath = idealOutput + (iter);
+            String outputPath = idealOutput + (iter + 1);
+            wikiPageRank.runIdealPageRankJob(new Path(inputPath), new Path(outputPath));
+        }
+        String idealSortedOutput = OUTPUT + "pagerank/ideal_sorted_output/";
         wikiPageRank.runSortingJob(new Path(idealOutput + MAX_ITER), new Path(idealSortedOutput));
 
         String taxOutput = OUTPUT + "pagerank/tax_iter";
-//        wikiPageRank.runTaxPageRankJob(firstOutputPath, new Path(taxOutput + 1));
-//        for (int iter = 1; iter < MAX_ITER; iter++) {
-//            String inputPath = taxOutput + (iter);
-//            String outputPath = taxOutput + (iter + 1);
-//            wikiPageRank.runTaxPageRankJob(new Path(inputPath), new Path(outputPath));
-//        }
-        String taxSortedOutput = OUTPUT + "pagerank/tax_sorted_output2/";
+        wikiPageRank.runTaxPageRankJob(firstOutputPath, new Path(taxOutput + 1));
+        for (int iter = 1; iter < MAX_ITER; iter++) {
+            String inputPath = taxOutput + (iter);
+            String outputPath = taxOutput + (iter + 1);
+            wikiPageRank.runTaxPageRankJob(new Path(inputPath), new Path(outputPath));
+        }
+        String taxSortedOutput = OUTPUT + "pagerank/tax_sorted_output/";
         wikiPageRank.runSortingJob(new Path(taxOutput + MAX_ITER), new Path(taxSortedOutput));
     }
 
@@ -160,7 +159,6 @@ public class WikiPageRank {
 
         //set mapper/combiner/reducer
         sortingJob.setMapperClass(SortingMapper.class);
-//        sortingJob.setReducerClass(SortingReducer.class);
 
         //set input path
         FileInputFormat.setInputPaths(sortingJob, inputPath);
@@ -175,9 +173,6 @@ public class WikiPageRank {
         }
 
         FileOutputFormat.setOutputPath(sortingJob, outputPath);
-
-//        sortingJob.setMapOutputKeyClass(FloatDescendingWritable.class);
-//        sortingJob.setMapOutputValueClass(Text.class);
 
         sortingJob.setOutputFormatClass(TextOutputFormat.class);
         sortingJob.setOutputKeyClass(FloatWritable.class);
